@@ -321,11 +321,9 @@ namespace SampleProgram.Additions
             {
                 if (Variables.highScoreList[i].Course == "normal")
                 {
-                    if (Variables.highScoreList[i].Score < (Variables.highScoreList[i + 1].Score * 2))
+                    if (Variables.highScoreList[i].Score > (Variables.highScoreList[Variables.highScoreList.Count - 1].Score * 2))
                     {
-                        Highscore cache = Variables.highScoreList[i + 1];
-                        Variables.highScoreList[i] = Variables.highScoreList[i + 1];
-                        Variables.highScoreList[i + 1] = cache;
+                        Variables.highScoreList.RemoveAt(Variables.highScoreList.Count - 1);
                     }
                 }
             }
