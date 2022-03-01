@@ -8,7 +8,7 @@ namespace SampleProgram.Common
     {
         public const string linePath = @"C:\Users\Public\Documents\Lines.json";
         public const string tutorialPath = @"C:\Users\Public\Documents\Tutorial.txt";
-        public const string highscorePath = @"C:\Users\Public\Documents\Highscores.json";
+        public static string highscorePath = "";
 
         public static string PlayerName = "";
         public static string LastEnemyLine;

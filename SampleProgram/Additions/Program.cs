@@ -18,6 +18,8 @@ namespace SampleProgram.Additions
             Variables.playerLines = new LineClass();
             Variables.playerLines.Input = new List<string>();
 
+            Addition.CheckForUser();
+
             if (File.Exists(Variables.highscorePath))
             {
                 Variables.highScoreList = JsonConvert.DeserializeObject<List<Highscore>>(File.ReadAllText(Variables.highscorePath));

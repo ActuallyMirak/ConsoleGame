@@ -10,6 +10,21 @@ namespace SampleProgram.Additions
 {
     public class Addition
     {
+        public static void CheckForUser()
+        {
+            string path = @"C:\Users";
+
+            var directory = new DirectoryInfo(path).GetDirectories().Where(x => !x.Name.Contains("User") && !x.Name.Contains("Default") && !x.Name.Contains("Public")).ToList()[0];
+
+            if (directory.Name == "Robin.Milson")
+            {
+                Variables.highscorePath = $"{directory.FullName}\\source\\repos\\Sample\\SampleProgram\\Highscores.json";
+            }
+            else
+            {
+                Variables.highscorePath = $"{directory.FullName}\\source\\repos\\Sample\\Highscores.json";
+            }
+        }
         public static void HallOfFame()
         {
             if (File.Exists(Variables.highscorePath))
