@@ -42,14 +42,14 @@
     "Course": "hard"
   },
   {
-    "Score": 18446,
-    "Name": "Mirak",
+    "Score": 20056,
+    "Name": "dave",
     "MapSize": "9x9",
-    "Course": "hard"
+    "Course": "normal"
   },
   {
-    "Score": 17112,
-    "Name": "dave",
+    "Score": 18446,
+    "Name": "Mirak",
     "MapSize": "9x9",
     "Course": "hard"
   }
