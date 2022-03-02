@@ -1,5 +1,11 @@
 [
   {
+    "Score": 34118,
+    "Name": "Mirak",
+    "MapSize": "9x9",
+    "Course": "hard"
+  },
+  {
     "Score": 31726,
     "Name": "Mirak",
     "MapSize": "9x9",
@@ -36,20 +42,14 @@
     "Course": "hard"
   },
   {
-    "Score": 22839,
-    "Name": "Dave",
-    "MapSize": "9x9",
-    "Course": "normal"
-  },
-  {
-    "Score": 21298,
+    "Score": 24964,
     "Name": "Mirak",
     "MapSize": "9x9",
     "Course": "hard"
   },
   {
-    "Score": 20056,
-    "Name": "dave",
+    "Score": 22839,
+    "Name": "Dave",
     "MapSize": "9x9",
     "Course": "normal"
   }
