@@ -1,5 +1,11 @@
 [
   {
+    "Score": 31726,
+    "Name": "Mirak",
+    "MapSize": "9x9",
+    "Course": "hard"
+  },
+  {
     "Score": 31266,
     "Name": "Mirak",
     "MapSize": "9x9",
@@ -46,11 +52,5 @@
     "Name": "dave",
     "MapSize": "9x9",
     "Course": "normal"
-  },
-  {
-    "Score": 18446,
-    "Name": "Mirak",
-    "MapSize": "9x9",
-    "Course": "hard"
   }
 ]
