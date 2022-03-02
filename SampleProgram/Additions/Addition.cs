@@ -36,8 +36,6 @@ namespace SampleProgram.Additions
                 SetPositionAndWrite(40, 13, "  Score    \tName  \tMapsize    Difficulty");
                 SetPositionAndWrite(40, 14, "=============================================");
 
-                highscores = highscores.OrderBy(x => x.Course).Distinct().ToList();
-
                 for (int i = 0; i < highscores.Count; i++)
                 {
                     SetPositionAndWrite(35, i + 15, string.Format("{0,13}\t{1,5}\t  {2}        {3}", highscores[i].Score, highscores[i].Name, highscores[i].MapSize, highscores[i].Course));
