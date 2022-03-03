@@ -18,6 +18,12 @@
     "Course": "hard"
   },
   {
+    "Score": 29702,
+    "Name": "Mirak",
+    "MapSize": "9x9",
+    "Course": "hard"
+  },
+  {
     "Score": 27646,
     "Name": "Mirak",
     "MapSize": "9x9",
@@ -46,11 +52,5 @@
     "Name": "Mirak",
     "MapSize": "9x9",
     "Course": "hard"
-  },
-  {
-    "Score": 22839,
-    "Name": "Dave",
-    "MapSize": "9x9",
-    "Course": "normal"
   }
 ]
