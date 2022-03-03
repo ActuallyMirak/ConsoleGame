@@ -321,7 +321,7 @@ namespace SampleProgram.Additions
                 {
                     if (Variables.highScoreList[i].Score > (Variables.highScoreList[Variables.highScoreList.Count - 1].Score * 2))
                     {
-                        Variables.highScoreList.RemoveAt(Variables.highScoreList.Count - 1);
+                        Variables.highScoreList.RemoveAt(i);
                     }
                 }
             }
