@@ -1,10 +1,11 @@
-﻿using System;
-using System.Threading;
-using System.IO;
+﻿using SampleProgram.Common;
+
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
-using SampleProgram.Common;
+using System.Threading;
+using System.Text.Json;
 
 namespace SampleProgram.Additions
 {
@@ -29,7 +30,7 @@ namespace SampleProgram.Additions
         {
             if (File.Exists(Variables.highscorePath))
             {
-                List<Highscore> highscores = JsonConvert.DeserializeObject<List<Highscore>>(File.ReadAllText(Variables.highscorePath));
+                List<Highscore> highscores = JsonSerializer.Deserialize<List<Highscore>>(File.ReadAllText(Variables.highscorePath));
 
                 SetPositionAndWrite(50, 10, "/ Hall of Fame \\");
 
@@ -331,7 +332,7 @@ namespace SampleProgram.Additions
                 Variables.highScoreList.RemoveAt(Variables.highScoreList.Count - 1);
             }
 
-            string serializedHighscore = JsonConvert.SerializeObject(Variables.highScoreList, Formatting.Indented);
+            string serializedHighscore = JsonSerializer.Serialize(Variables.highScoreList);
             File.WriteAllText(Variables.highscorePath, serializedHighscore);
 
             if (Variables.Highscore == Variables.highScoreList[0].Score) { return true; }

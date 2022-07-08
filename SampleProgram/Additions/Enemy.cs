@@ -1,7 +1,6 @@
-﻿using System;
-using SampleProgram.Common;
-using System.Collections.Generic;
-using System.Text;
+﻿using SampleProgram.Common;
+
+using System;
 
 namespace SampleProgram.Additions
 {
