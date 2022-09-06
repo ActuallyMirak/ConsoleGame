@@ -189,47 +189,60 @@ namespace SampleProgram.Additions
             }
             Console.Write("##\n");
         }
-        public static void HitCalculator(List<string> Lines)
+        public static int HitCalculator(List<string> Lines, int lives, int highscore)
         {
             List<string> enemyPosition = new List<string>();
             int i = 0;
 
-            try
+            if (Variables.LastEnemyLine.Contains(Variables.entities[0][0]) ||
+                Variables.LastEnemyLine.Contains(Variables.entities[1][0]) ||
+                Variables.LastEnemyLine.Contains(Variables.entities[2][0]) ||
+                Variables.LastEnemyLine.Contains(Variables.entities[3][0]))
             {
-                foreach (char a in Variables.LastEnemyLine)
+                try
                 {
-                    if (i >= Variables.LastEnemyLine.Length - 1) { break; }
-                    if (a != '#')
+                    foreach (char a in Variables.LastEnemyLine)
                     {
-                        enemyPosition.Add(Variables.LastEnemyLine.Substring(i, 3));
-                        i += 3;
+                        if (i >= Variables.LastEnemyLine.Length - 1) { break; }
+                        if (a != '#')
+                        {
+                            enemyPosition.Add(Variables.LastEnemyLine.Substring(i, 3));
+                            i += 3;
+                        }
+                        else { i++; }
                     }
-                    else { i++; }
-                }
 
-                for (i = 0; i < Lines.Count(); i++)
-                {
-                    if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[1])
+                    for (i = 0; i < Lines.Count(); i++)
                     {
-                        Variables.Lives--;
-                        Lives_Blink(Lines.Count);
-                    }
-                    else if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[2])
-                    {
-                        Variables.repetitions += 8;
-                    }
-                    else if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[3])
-                    {
-                        Variables.Highscore += 5000;
+                        if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[1])
+                        {
+                            lives--;
+                            Lives_Blink(lives, Lines.Count);
+
+                            break;
+                        }
+                        else if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[2])
+                        {
+                            Variables.repetitions += 8;
+
+                            break;
+                        }
+                        else if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[3])
+                        {
+                            highscore += 5000;
+
+                            break;
+                        }
                     }
                 }
+                catch (Exception) { }
+
+                if (lives == 0) { Variables.loopController = false; }
             }
-            catch (Exception) { }
 
-            Variables.loopController = false;
-            if (Variables.Lives == 0) { Variables.loopController = true; }
+            return lives;
         }
-        public static void Lives_Blink(int LinesCount)
+        public static void Lives_Blink(int lives, int LinesCount)
         {
             for (int i = 0; i < 10; i++)
             {
@@ -237,7 +250,7 @@ namespace SampleProgram.Additions
 
                 Thread.Sleep(50);
 
-                SetPositionAndWrite(LinesCount * 3 + 20, LinesCount / 2 + 1, string.Format("Your Lives: {0}", Variables.Lives));
+                SetPositionAndWrite(LinesCount * 3 + 20, LinesCount / 2 + 1, string.Format("Your Lives: {0}", lives));
 
                 Thread.Sleep(50);
             }
@@ -249,27 +262,28 @@ namespace SampleProgram.Additions
                 Console.Write("\b ");
             }
         }
-        public static int HighscoreCalculator(bool getHighscore)
+        public static int HighscoreCalculator(int highscore, bool getHighscore)
         {
-            if (getHighscore == false)
+            if (!getHighscore)
             {
-                Variables.Highscore += 23 * (Variables.Difficulty - 1);
+                highscore += 23 * (Variables.Difficulty - 1);
             }
-            return Variables.Highscore;
+
+            return highscore;
         }
-        public static void RepeatProgram(List<string> Lines)
+        public static void RepeatProgram(List<string> Lines, int highscore)
         {
             bool newHighscore = false;
             if (Variables.Difficulty != 1)
             {
-                newHighscore = SaveHighscore(Lines.Count);
+                newHighscore = SaveHighscore(highscore, Lines.Count);
             }
 
             Console.Clear();
 
             SetPositionAndWrite(50, 8, "--------------------------");
             SetPositionAndWrite(50, 10, "      Game over");
-            SetPositionAndWrite(50, 11, string.Format("   Your Highscore | {0}", HighscoreCalculator(true)));
+            SetPositionAndWrite(50, 11, string.Format("   Your Highscore | {0}", HighscoreCalculator(highscore, true)));
 
             if (newHighscore == true)
             {
@@ -288,11 +302,11 @@ namespace SampleProgram.Additions
         Validation:
             if (input.ToUpper() == "Y")
             {
-                Variables.loopController = false;
+                Variables.loopController = true;
             }
             else if (input.ToUpper() == "N")
             {
-                Variables.loopController = true;
+                Variables.loopController = false;
             }
             else
             {
@@ -305,14 +319,14 @@ namespace SampleProgram.Additions
                 goto Validation;
             }
         }
-        public static bool SaveHighscore(int LinesCount)
+        public static bool SaveHighscore(int highscore, int LinesCount)
         {
             string CourseName;
 
             if (Variables.Difficulty == 2) { CourseName = "normal"; }
             else { CourseName = "hard"; }
 
-            Variables.highScoreList.Add(new Highscore() { Score = HighscoreCalculator(true), Name = Variables.PlayerName, MapSize = $"{LinesCount}x{LinesCount}", Course = CourseName });
+            Variables.highScoreList.Add(new Highscore() { Score = HighscoreCalculator(highscore, true), Name = Variables.PlayerName, MapSize = $"{LinesCount}x{LinesCount}", Course = CourseName });
             Variables.highScoreList = Variables.highScoreList.OrderByDescending(x => x.Score).Distinct().ToList();
 
             // "normal" shouldn't be worth as much as "hard"
@@ -335,7 +349,7 @@ namespace SampleProgram.Additions
             string serializedHighscore = JsonSerializer.Serialize(Variables.highScoreList);
             File.WriteAllText(Variables.highscorePath, serializedHighscore);
 
-            if (Variables.Highscore == Variables.highScoreList[0].Score) { return true; }
+            if (highscore == Variables.highScoreList[0].Score) { return true; }
             return false;
         }
 

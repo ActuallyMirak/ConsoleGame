@@ -53,64 +53,59 @@ namespace SampleProgram
 
             SettingUpPlayerLines();
 
-        Start:
-            Program.SetGameUp();
-
-            Program.BuildGame(true);
-
-            while (!Variables.loopController)
+            do
             {
-                TimeSpan timeSpan = new TimeSpan(0, 0, Variables.time);
-                ConsoleKey cKey = ConsoleKey.Enter;
+                Variables variables = new Variables();
 
-                Program.BuildGame(false);
+                Program.BuildGame(variables.enemyLines, true);
 
-                Console.SetCursorPosition(Variables.playerLines.Input.Count * 3 + 20, Variables.playerLines.Input.Count / 2);
-                Console.Write("Your Points: {0}", Addition.HighscoreCalculator(true));
+                int x = Variables.playerLines.Input.Count * 3 + 20;
+                int y = Variables.playerLines.Input.Count / 2;
 
-                Console.SetCursorPosition(Variables.playerLines.Input.Count * 3 + 20, Variables.playerLines.Input.Count / 2 + 1);
-                Console.Write("Your Lives: {0}", Variables.Lives);
-
-                Console.SetCursorPosition(Variables.playerLines.Input.Count * 3 + 10, Variables.playerLines.Input.Count / 2);
-                while (timeSpan != new TimeSpan(0, 0, 0))
+                while (Variables.loopController)
                 {
-                    Thread.Sleep(15);
-                    if (Console.KeyAvailable)
+                    ConsoleKey cKey = ConsoleKey.Enter;
+
+                    Program.BuildGame(variables.enemyLines, false);
+
+                    Addition.SetPositionAndWrite(x, y, $"Your Points: {Addition.HighscoreCalculator(variables.Highscore, true)}");
+
+                    Addition.SetPositionAndWrite(x, y + 1, $"Your Lives: {variables.Lives}");
+
+                    Console.SetCursorPosition(Variables.playerLines.Input.Count * 3 + 10, Variables.playerLines.Input.Count / 2);
+                    for (int i = variables.time; i > 0; i--)
                     {
-                        cKey = Console.ReadKey().Key;
-                        Console.Write("\b ");
-                        break;
+                        Thread.Sleep(15);
+                        if (Console.KeyAvailable)
+                        {
+                            cKey = Console.ReadKey().Key;
+                            Console.Write("\b ");
+                            break;
+                        }
                     }
-                    else
+
+                    variables.Highscore = Addition.HighscoreCalculator(variables.Highscore, false);
+
+                    try
                     {
-                        timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 1));
+                        Addition.MovementSelection(cKey, Variables.playerLines.Input);
+
+                        Variables.playerLines.Input[Variables.currentPosition] = "   ";
+                        Variables.playerLines.Input[Variables.newPosition] = Variables.entities[0];
+
+                        Variables.currentPosition = Variables.newPosition;
                     }
+                    catch (WrongInputException) { }
+
+                    variables.Lives = Addition.HitCalculator(Variables.playerLines.Input, variables.Lives, variables.Highscore);
                 }
+                Console.CursorVisible = true;
 
-                Addition.HighscoreCalculator(false);
+                Addition.RepeatProgram(Variables.playerLines.Input, variables.Highscore);
 
-                try
-                {
-                    Addition.MovementSelection(cKey, Variables.playerLines.Input);
-
-                    Variables.playerLines.Input[Variables.currentPosition] = "   ";
-                    Variables.playerLines.Input[Variables.newPosition] = Variables.entities[0];
-
-                    Variables.currentPosition = Variables.newPosition;
-                }
-                catch (WrongInputException) { }
-
-                Addition.HitCalculator(Variables.playerLines.Input);
-            }
-            Console.CursorVisible = true;
-
-            Addition.RepeatProgram(Variables.playerLines.Input);
-
-            if (!Variables.loopController)
-            {
                 Console.Clear();
-                goto Start;
             }
+            while (Variables.loopController);
         }
     }
 }

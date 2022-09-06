@@ -1,14 +1,15 @@
 ﻿using SampleProgram.Common;
 
 using System;
+using System.Collections.Generic;
 
 namespace SampleProgram.Additions
 {
     class Enemy
     {
-        public static void EnemyLines(int linesCount)
+        public static void EnemyLines(List<string> enemyLines, int linesCount, bool initial)
         {
-            if (Variables.failSave == 0)
+            if (initial)
             {
                 for (int i = 0; i < linesCount; i++)
                 {
@@ -20,22 +21,21 @@ namespace SampleProgram.Additions
                     }
                     line += "#";
 
-                    Variables.enemyLines.Add(line);
+                    enemyLines.Add(line);
                 }
-                Variables.failSave++;
 
-                foreach (string a in Variables.enemyLines)
+                foreach (string a in enemyLines)
                 {
                     Console.WriteLine(a);
                 }
             }
             else
             {
-                Variables.enemyLines.RemoveAt(Variables.enemyLines.Count - 1);
+                enemyLines.RemoveAt(enemyLines.Count - 1);
 
                 try
                 {
-                    Variables.LastEnemyLine = Variables.enemyLines[Variables.enemyLines.Count - 1];
+                    Variables.LastEnemyLine = enemyLines[enemyLines.Count - 1];
                 }
                 catch { }
 
@@ -44,24 +44,23 @@ namespace SampleProgram.Additions
                 {
                     line += Spawn();
                 }
-                Variables.enemyLines.Insert(0,line + "#");
+                enemyLines.Insert(0, line + "#");
 
-                for (int i = 0; i < Variables.enemyLines.Count; i++)
+                for (int i = 0; i < enemyLines.Count; i++)
                 {
                     int correctLine = i + 1;
                     Console.SetCursorPosition(0, correctLine);
-                    Console.WriteLine(Variables.enemyLines[i]);
+                    Console.WriteLine(enemyLines[i]);
                 }
             }
         }
         public static string Spawn()
         {
-            if (Variables.repetitions != 0)
+            if (Variables.repetitions > 0)
             {
                 Variables.repetitions--;
-                return "   ";
+                return Variables.emptyString;
             }
-
 
             Random random = new Random();
             int number;
@@ -78,16 +77,16 @@ namespace SampleProgram.Additions
                 return Variables.entities[3];
             }
 
-            if (Variables.repetitions == 0)
-            {
-                number = random.Next(0, 20);
+            number = random.Next(0, 20);
 
-                if (number > 16)
-                {
-                    return Variables.entities[1];
-                }
+            if (number > 16)
+            {
+                return Variables.entities[1];
             }
-            return "   ";
+            else
+            {
+                return Variables.emptyString;
+            }
         }
     }
 }

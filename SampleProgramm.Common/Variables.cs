@@ -1,11 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SampleProgram.Common
 {
-    public static class Variables
+    public class Variables
     {
+        public Variables()
+        {
+            Console.CursorVisible = false;
+
+            if ( Difficulty == 1) { time = 18; }
+            else if ( Difficulty == 2) { time = 10; }
+            else { time = 6; }
+
+            Highscore = 0;
+            Lives = 3;
+
+            enemyLines = new List<string>();
+            failSave = 0;
+        }
+
         public const string linePath = @"C:\Users\Public\Documents\Lines.json";
         public const string tutorialPath = @"C:\Users\Public\Documents\Tutorial.txt";
+        public const string emptyString = "   ";
         public static string highscorePath = "";
 
         public static string PlayerName = "";
@@ -13,22 +30,23 @@ namespace SampleProgram.Common
 
         public static string[] entities = new string[4] { "|X|", "\\O/", "%-%", "$$$" };
 
-        public static List<string> enemyLines = new List<string>();
         public static List<Highscore> highScoreList = new List<Highscore>();
 
-        public static LineClass playerLines;
+        public static LineClass playerLines = new LineClass() { Input = new List<string>() };
 
-        public static bool loopController = false;
+        public static bool loopController = true;
 
         public static int enemyLinesCount = 0;
         public static int playerLinesCount = 0;
-        public static int time;
-        public static int Lives = 3;
         public static int Difficulty = 0;
-        public static int Highscore = 0;
-        public static int failSave = 0;
         public static int repetitions = 0;
         public static int currentPosition;
         public static int newPosition;
+
+        public List<string> enemyLines;
+        public int time;
+        public int Lives;
+        public int Highscore;
+        public int failSave;
     }
 }
