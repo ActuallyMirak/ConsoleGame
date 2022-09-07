@@ -25,25 +25,41 @@ namespace SampleProgram.Additions
             {
                 Variables.highscorePath = $"{directory.FullName}\\source\\repos\\Sample\\Highscores.json";
             }
+
+            if (!File.Exists(Variables.highscorePath))
+            {
+                if (File.Exists("C:\\Users\\Public\\Documents\\highscores.json"))
+                {
+                    Variables.highscorePath = "C:\\Users\\Public\\Documents\\highscores.json";
+                }
+            }
         }
         public static void HallOfFame()
         {
+            List<Highscore> highscores;
+
             if (File.Exists(Variables.highscorePath))
             {
-                List<Highscore> highscores = JsonSerializer.Deserialize<List<Highscore>>(File.ReadAllText(Variables.highscorePath));
-
-                SetPositionAndWrite(50, 10, "/ Hall of Fame \\");
-
-                SetPositionAndWrite(40, 13, "  Score    \tName  \tMapsize    Difficulty");
-                SetPositionAndWrite(40, 14, "=============================================");
-
-                for (int i = 0; i < highscores.Count; i++)
-                {
-                    SetPositionAndWrite(35, i + 15, string.Format("{0,13}\t{1,5}\t  {2}        {3}", highscores[i].Score, highscores[i].Name, highscores[i].MapSize, highscores[i].Course));
-                }
-                Console.ReadKey();
-                Console.Clear();
+                highscores = JsonSerializer.Deserialize<List<Highscore>>(File.ReadAllText(Variables.highscorePath));
             }
+            else
+            {
+                Variables.highscorePath = "C:\\Users\\Public\\Documents\\highscores.json";
+
+                highscores = new List<Highscore>();
+            }
+
+            SetPositionAndWrite(50, 10, "/ Hall of Fame \\");
+
+            SetPositionAndWrite(40, 13, "  Score    \tName  \tMapsize    Difficulty");
+            SetPositionAndWrite(40, 14, "=============================================");
+
+            for (int i = 0; i < highscores.Count; i++)
+            {
+                SetPositionAndWrite(35, i + 15, string.Format("{0,13}\t{1,5}\t  {2}        {3}", highscores[i].Score, highscores[i].Name, highscores[i].MapSize, highscores[i].Course));
+            }
+            Console.ReadKey();
+            Console.Clear();
         }
         public static void Tutorial()
         {
@@ -330,16 +346,20 @@ namespace SampleProgram.Additions
             Variables.highScoreList = Variables.highScoreList.OrderByDescending(x => x.Score).Distinct().ToList();
 
             // "normal" shouldn't be worth as much as "hard"
-            for(int i = 0; i < 9; i++)
+            try
             {
-                if (Variables.highScoreList[i].Course == "normal")
+                for (int i = 0; i < 9; i++)
                 {
-                    if (Variables.highScoreList[i].Score > (Variables.highScoreList[Variables.highScoreList.Count - 1].Score * 2))
+                    if (Variables.highScoreList[i].Course == "normal")
                     {
-                        Variables.highScoreList.RemoveAt(i);
+                        if (Variables.highScoreList[i].Score > (Variables.highScoreList[Variables.highScoreList.Count - 1].Score * 2))
+                        {
+                            Variables.highScoreList.RemoveAt(i);
+                        }
                     }
                 }
             }
+            catch (ArgumentOutOfRangeException) { }
 
             if (Variables.highScoreList.Count >= 10)
             {
