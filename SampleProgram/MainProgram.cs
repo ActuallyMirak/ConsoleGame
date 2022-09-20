@@ -13,35 +13,35 @@ namespace SampleProgram
     {
         public static void SettingUpPlayerLines()
         {
-            if (!File.Exists(Variables.linePath))
+            if (!File.Exists(Constants.linePath))
             {
 
                 for (int i = 0; i < 9; i++)
                 {
                     if (i == 4)
                     {
-                        Variables.playerLines.Input.Add(Variables.entities[0]);
+                        Constants.playerLines.Input.Add(Constants.entities[0]);
                     }
                     else
                     {
-                        Variables.playerLines.Input.Add("   ");
+                        Constants.playerLines.Input.Add("   ");
                     }
                 }
             }
             else
             {
-                Variables.playerLines = JsonSerializer.Deserialize<LineClass>(File.ReadAllText(Variables.linePath));
+                Constants.playerLines = JsonSerializer.Deserialize<LineClass>(File.ReadAllText(Constants.linePath));
             }
-            if (Variables.playerLines.Input.Count <= 2) { Console.WriteLine("To small Game"); Console.ReadKey(); }
+            if (Constants.playerLines.Input.Count <= 2) { Console.WriteLine("To small Game"); Console.ReadKey(); }
 
-            for (int i = 0; i < Variables.playerLines.Input.Count; i++)
+            for (int i = 0; i < Constants.playerLines.Input.Count; i++)
             {
-                if (Variables.playerLines.Input[i] == Variables.entities[0])
+                if (Constants.playerLines.Input[i] == Constants.entities[0])
                 {
-                    Variables.currentPosition = i;
+                    Constants.currentPosition = i;
                 }
             }
-            Variables.enemyLinesCount = Variables.playerLines.Input.Count;
+            Constants.enemyLinesCount = Constants.playerLines.Input.Count;
         }
 
         static void Main()
@@ -55,14 +55,14 @@ namespace SampleProgram
 
             do
             {
-                Variables variables = new Variables();
+                Constants variables = new Constants();
 
                 Program.BuildGame(variables.enemyLines, true);
 
-                int x = Variables.playerLines.Input.Count * 3 + 20;
-                int y = Variables.playerLines.Input.Count / 2;
+                int x = Constants.playerLines.Input.Count * 3 + 20;
+                int y = Constants.playerLines.Input.Count / 2;
 
-                while (Variables.loopController)
+                while (Constants.loopController)
                 {
                     ConsoleKey cKey = ConsoleKey.Enter;
 
@@ -72,7 +72,7 @@ namespace SampleProgram
 
                     Addition.SetPositionAndWrite(x, y + 1, $"Your Lives: {variables.Lives}");
 
-                    Console.SetCursorPosition(Variables.playerLines.Input.Count * 3 + 10, Variables.playerLines.Input.Count / 2);
+                    Console.SetCursorPosition(Constants.playerLines.Input.Count * 3 + 10, Constants.playerLines.Input.Count / 2);
                     for (int i = variables.time; i > 0; i--)
                     {
                         Thread.Sleep(15);
@@ -88,24 +88,24 @@ namespace SampleProgram
 
                     try
                     {
-                        Addition.MovementSelection(cKey, Variables.playerLines.Input);
+                        Addition.MovementSelection(cKey, Constants.playerLines.Input);
 
-                        Variables.playerLines.Input[Variables.currentPosition] = "   ";
-                        Variables.playerLines.Input[Variables.newPosition] = Variables.entities[0];
+                        Constants.playerLines.Input[Constants.currentPosition] = "   ";
+                        Constants.playerLines.Input[Constants.newPosition] = Constants.entities[0];
 
-                        Variables.currentPosition = Variables.newPosition;
+                        Constants.currentPosition = Constants.newPosition;
                     }
                     catch (WrongInputException) { }
 
-                    variables.Lives = Addition.HitCalculator(Variables.playerLines.Input, variables.Lives, variables.Highscore);
+                    variables.Lives = Addition.HitCalculator(Constants.playerLines.Input, variables.Lives, variables.Highscore);
                 }
                 Console.CursorVisible = true;
 
-                Addition.RepeatProgram(Variables.playerLines.Input, variables.Highscore);
+                Addition.RepeatProgram(Constants.playerLines.Input, variables.Highscore);
 
                 Console.Clear();
             }
-            while (Variables.loopController);
+            while (Constants.loopController);
         }
     }
 }

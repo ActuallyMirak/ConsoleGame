@@ -16,14 +16,12 @@ namespace SampleProgram.Additions
 
             Addition.CheckForUser();
 
-            if (File.Exists(Variables.highscorePath))
-            {
-                Variables.highScoreList = JsonSerializer.Deserialize<List<Highscore>>(File.ReadAllText(Variables.highscorePath));
-            }
-            if (!File.Exists(Variables.tutorialPath))
+            Constants.highScoreList = JsonSerializer.Deserialize<List<Highscore>>(File.ReadAllText(Constants.highscorePath));
+            if (!File.Exists(Constants.tutorialPath))
             {
                 Addition.Tutorial();
             }
+
             Addition.HallOfFame();
         }
 
@@ -31,17 +29,17 @@ namespace SampleProgram.Additions
         {
             if (wall == true)
             {
-                Addition.Wall(Variables.enemyLinesCount);
+                Addition.Wall(Constants.enemyLinesCount);
 
-                Enemy.EnemyLines(enemyLines, Variables.enemyLinesCount, true);
-                Addition.PlayerLines(Variables.playerLines.Input);
+                Enemy.EnemyLines(enemyLines, Constants.enemyLinesCount, true);
+                Addition.PlayerLines(Constants.playerLines.Input);
 
-                Addition.Wall(Variables.enemyLinesCount);
+                Addition.Wall(Constants.enemyLinesCount);
             }
             else
             {
-                Enemy.EnemyLines(enemyLines, Variables.enemyLinesCount, false);
-                Addition.PlayerLines(Variables.playerLines.Input);
+                Enemy.EnemyLines(enemyLines, Constants.enemyLinesCount, false);
+                Addition.PlayerLines(Constants.playerLines.Input);
             }
         }
     }

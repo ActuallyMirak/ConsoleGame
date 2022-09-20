@@ -24,9 +24,9 @@ namespace SampleProgram.Additions
                     enemyLines.Add(line);
                 }
 
-                foreach (string a in enemyLines)
+                foreach (string line in enemyLines)
                 {
-                    Console.WriteLine(a);
+                    Console.WriteLine(line);
                 }
             }
             else
@@ -35,7 +35,7 @@ namespace SampleProgram.Additions
 
                 try
                 {
-                    Variables.LastEnemyLine = enemyLines[enemyLines.Count - 1];
+                    Constants.LastEnemyLine = enemyLines[enemyLines.Count - 1];
                 }
                 catch { }
 
@@ -56,10 +56,10 @@ namespace SampleProgram.Additions
         }
         public static string Spawn()
         {
-            if (Variables.repetitions > 0)
+            if (Constants.repetitions > 0)
             {
-                Variables.repetitions--;
-                return Variables.emptyString;
+                Constants.repetitions--;
+                return Constants.emptyString;
             }
 
             Random random = new Random();
@@ -68,24 +68,24 @@ namespace SampleProgram.Additions
             number = random.Next(0, 200);
             if (number == 1)
             {
-                return Variables.entities[2];
+                return Constants.entities[2];
             }
 
             number = random.Next(0, 10000);
             if (number == 1)
             {
-                return Variables.entities[3];
+                return Constants.entities[3];
             }
 
             number = random.Next(0, 20);
 
             if (number > 16)
             {
-                return Variables.entities[1];
+                return Constants.entities[1];
             }
             else
             {
-                return Variables.emptyString;
+                return Constants.emptyString;
             }
         }
     }

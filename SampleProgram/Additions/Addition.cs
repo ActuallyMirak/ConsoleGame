@@ -15,39 +15,23 @@ namespace SampleProgram.Additions
         {
             string path = @"C:\Users";
 
-            var directory = new DirectoryInfo(path).GetDirectories().Where(x => !x.Name.Contains("User") && !x.Name.Contains("Default") && !x.Name.Contains("Public")).ToList()[0];
+            var directory = new DirectoryInfo(path).GetDirectories().Where(x => !x.Name.Contains("User") && !x.Name.Contains("Default") && !x.Name.Contains("Public")).ToList().First();
 
-            if (directory.Name == "Robin.Milson")
-            {
-                Variables.highscorePath = $"{directory.FullName}\\source\\repos\\Sample\\SampleProgram\\Highscores.json";
-            }
-            else
-            {
-                Variables.highscorePath = $"{directory.FullName}\\source\\repos\\Sample\\Highscores.json";
-            }
+            Constants.highscorePath = $"{directory.FullName}\\source\\repos\\Sample\\Highscores.json";
 
-            if (!File.Exists(Variables.highscorePath))
+            if (!File.Exists(Constants.highscorePath))
             {
-                if (File.Exists("C:\\Users\\Public\\Documents\\highscores.json"))
+                Constants.highscorePath = "C:\\Users\\Public\\Documents\\highscores.json";
+
+                if (!File.Exists(Constants.highscorePath))
                 {
-                    Variables.highscorePath = "C:\\Users\\Public\\Documents\\highscores.json";
+                    File.WriteAllText(Constants.highscorePath, "[]");
                 }
             }
         }
         public static void HallOfFame()
         {
-            List<Highscore> highscores;
-
-            if (File.Exists(Variables.highscorePath))
-            {
-                highscores = JsonSerializer.Deserialize<List<Highscore>>(File.ReadAllText(Variables.highscorePath));
-            }
-            else
-            {
-                Variables.highscorePath = "C:\\Users\\Public\\Documents\\highscores.json";
-
-                highscores = new List<Highscore>();
-            }
+            List<Highscore> highscores = Constants.highScoreList;
 
             SetPositionAndWrite(50, 10, "/ Hall of Fame \\");
 
@@ -65,58 +49,59 @@ namespace SampleProgram.Additions
         {
             SetPositionAndWrite(40, 8, "Tutorial");
             SetPositionAndWrite(39, 9, "----------");
-            SetPositionAndWrite(30, 11, "          Das bist du:\t\t\t\t\t\t" + Variables.entities[0]);
-            SetPositionAndWrite(30, 12, "          Das sind Gegner:\t\t\t\t\t" + Variables.entities[1]);
-            SetPositionAndWrite(30, 13, "          Dieses Item verhindert die nächsten 8 Spawns:\t\t" + Variables.entities[2]);
-            SetPositionAndWrite(30, 14, "(selten)  Dieses Item gibt dir 5000 Punkte:\t\t\t" + Variables.entities[3]);
+            SetPositionAndWrite(30, 11, "          Das bist du:\t\t\t\t\t\t" + Constants.entities[0]);
+            SetPositionAndWrite(30, 12, "          Das sind Gegner:\t\t\t\t\t" + Constants.entities[1]);
+            SetPositionAndWrite(30, 13, "          Dieses Item verhindert die nächsten 8 Spawns:\t\t" + Constants.entities[2]);
+            SetPositionAndWrite(30, 14, "(selten)  Dieses Item gibt dir 5000 Punkte:\t\t\t" + Constants.entities[3]);
             Console.ReadKey();
             Console.Clear();
 
-            FileStream a = File.Create(Variables.tutorialPath);
-            a.Close();
+            FileStream cache = File.Create(Constants.tutorialPath);
+
+            cache.Close();
+            cache.Dispose();
         }
         public static void NameSelection()
         {
+            Console.Clear();
             Console.CursorVisible = true;
-        Start:
-            SetPositionAndWrite(50, 10, "Please enter your name: ");
-            Variables.PlayerName = Console.ReadLine();
 
-            if (Variables.PlayerName == null || Variables.PlayerName == string.Empty)
+            SetPositionAndWrite(50, 10, "Please enter your name: ");
+            Constants.PlayerName = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(Constants.PlayerName))
             {
-                Console.SetCursorPosition(74 + Variables.PlayerName.Length, 10);
-                for (int i = 0; i < Variables.PlayerName.Length; i++)
+                Console.SetCursorPosition(74 + Constants.PlayerName.Length, 10);
+                for (int i = 0; i < Constants.PlayerName.Length; i++)
                 {
                     Console.Write("\b");
                 }
-                for (int i = 0; i < Variables.PlayerName.Length; i++)
+                for (int i = 0; i < Constants.PlayerName.Length; i++)
                 {
                     Console.Write(" ");
                 }
 
                 SetPositionAndWrite(50, 8, "Your name has to contain a symbol\n");
-                goto Start;
+                NameSelection();
             }
-            else if (Variables.PlayerName.Length >= 35)
+            else if (Constants.PlayerName.Length >= 35)
             {
-                Console.Clear();
-
-                goto Start;
+                NameSelection();
             }
-            else if (Variables.PlayerName.Length > 5)
+            else if (Constants.PlayerName.Length > 5)
             {
-                Console.SetCursorPosition(74 + Variables.PlayerName.Length, 10);
-                for (int i = 0; i < Variables.PlayerName.Length; i++)
+                Console.SetCursorPosition(74 + Constants.PlayerName.Length, 10);
+                for (int i = 0; i < Constants.PlayerName.Length; i++)
                 {
                     Console.Write("\b");
                 }
-                for (int i = 0; i < Variables.PlayerName.Length; i++)
+                for (int i = 0; i < Constants.PlayerName.Length; i++)
                 {
                     Console.Write(" ");
                 }
 
                 SetPositionAndWrite(50, 7, "Your name can only be 5 letters long");
-                goto Start;
+                NameSelection();
             }
             Console.Clear();
         }
@@ -128,7 +113,7 @@ namespace SampleProgram.Additions
             SetPositionAndWrite(50, 13, "(3)hard = points * 2");
             SetPositionAndWrite(50, 14, "Your choice: ");
 
-            while (Variables.Difficulty == 0)
+            while (Constants.Difficulty == 0)
             {
                 Console.SetCursorPosition(63, 14);
                 ConsoleKey cKey = Console.ReadKey().Key;
@@ -138,25 +123,25 @@ namespace SampleProgram.Additions
                     case ConsoleKey.D1:
                     case ConsoleKey.NumPad1:
 
-                        Variables.Difficulty = 1;
+                        Constants.Difficulty = 1;
                         break;
 
                     case ConsoleKey.D2:
                     case ConsoleKey.NumPad2:
 
-                        Variables.Difficulty = 2;
+                        Constants.Difficulty = 2;
                         break;
 
                     case ConsoleKey.D3:
                     case ConsoleKey.NumPad3:
 
-                        Variables.Difficulty = 3;
+                        Constants.Difficulty = 3;
                         break;
 
                     default:
                         Console.Write("\b ");
 
-                        SetPositionAndWrite(35 , 14, "Invalid Input");
+                        SetPositionAndWrite(35, 14, "Invalid Input");
                         break;
                 }
             }
@@ -168,19 +153,19 @@ namespace SampleProgram.Additions
             {
                 case ConsoleKey.A:
                 case ConsoleKey.LeftArrow:
-                    int newPosition = Variables.currentPosition - 1;
+                    int newPosition = Constants.currentPosition - 1;
                     if (newPosition >= 0 && newPosition < Lines.Count)
                     {
-                        Variables.newPosition = newPosition;
+                        Constants.newPosition = newPosition;
                     }
                     break;
 
                 case ConsoleKey.D:
                 case ConsoleKey.RightArrow:
-                    newPosition = Variables.currentPosition + 1;
+                    newPosition = Constants.currentPosition + 1;
                     if (newPosition >= 0 && newPosition < Lines.Count)
                     {
-                        Variables.newPosition = newPosition;
+                        Constants.newPosition = newPosition;
                     }
                     break;
 
@@ -210,40 +195,40 @@ namespace SampleProgram.Additions
             List<string> enemyPosition = new List<string>();
             int i = 0;
 
-            if (Variables.LastEnemyLine.Contains(Variables.entities[0][0]) ||
-                Variables.LastEnemyLine.Contains(Variables.entities[1][0]) ||
-                Variables.LastEnemyLine.Contains(Variables.entities[2][0]) ||
-                Variables.LastEnemyLine.Contains(Variables.entities[3][0]))
+            if (Constants.LastEnemyLine.Contains(Constants.entities[0][0]) ||
+                Constants.LastEnemyLine.Contains(Constants.entities[1][0]) ||
+                Constants.LastEnemyLine.Contains(Constants.entities[2][0]) ||
+                Constants.LastEnemyLine.Contains(Constants.entities[3][0]))
             {
                 try
                 {
-                    foreach (char a in Variables.LastEnemyLine)
+                    foreach (char a in Constants.LastEnemyLine)
                     {
-                        if (i >= Variables.LastEnemyLine.Length - 1) { break; }
+                        if (i >= Constants.LastEnemyLine.Length - 1) { break; }
                         if (a != '#')
                         {
-                            enemyPosition.Add(Variables.LastEnemyLine.Substring(i, 3));
+                            enemyPosition.Add(Constants.LastEnemyLine.Substring(i, 3));
                             i += 3;
                         }
                         else { i++; }
                     }
 
-                    for (i = 0; i < Lines.Count(); i++)
+                    for (i = 0; i < Lines.Count; i++)
                     {
-                        if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[1])
+                        if (Lines[i] == Constants.entities[0] && enemyPosition[i] == Constants.entities[1])
                         {
                             lives--;
                             Lives_Blink(lives, Lines.Count);
 
                             break;
                         }
-                        else if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[2])
+                        else if (Lines[i] == Constants.entities[0] && enemyPosition[i] == Constants.entities[2])
                         {
-                            Variables.repetitions += 8;
+                            Constants.repetitions += 8;
 
                             break;
                         }
-                        else if (Lines[i] == Variables.entities[0] && enemyPosition[i] == Variables.entities[3])
+                        else if (Lines[i] == Constants.entities[0] && enemyPosition[i] == Constants.entities[3])
                         {
                             highscore += 5000;
 
@@ -253,7 +238,7 @@ namespace SampleProgram.Additions
                 }
                 catch (Exception) { }
 
-                if (lives == 0) { Variables.loopController = false; }
+                if (lives == 0) { Constants.loopController = false; }
             }
 
             return lives;
@@ -282,7 +267,7 @@ namespace SampleProgram.Additions
         {
             if (!getHighscore)
             {
-                highscore += 23 * (Variables.Difficulty - 1);
+                highscore += 23 * (Constants.Difficulty - 1);
             }
 
             return highscore;
@@ -290,7 +275,7 @@ namespace SampleProgram.Additions
         public static void RepeatProgram(List<string> Lines, int highscore)
         {
             bool newHighscore = false;
-            if (Variables.Difficulty != 1)
+            if (Constants.Difficulty != 1)
             {
                 newHighscore = SaveHighscore(highscore, Lines.Count);
             }
@@ -318,11 +303,11 @@ namespace SampleProgram.Additions
         Validation:
             if (input.ToUpper() == "Y")
             {
-                Variables.loopController = true;
+                Constants.loopController = true;
             }
             else if (input.ToUpper() == "N")
             {
-                Variables.loopController = false;
+                Constants.loopController = false;
             }
             else
             {
@@ -339,37 +324,37 @@ namespace SampleProgram.Additions
         {
             string CourseName;
 
-            if (Variables.Difficulty == 2) { CourseName = "normal"; }
+            if (Constants.Difficulty == 2) { CourseName = "normal"; }
             else { CourseName = "hard"; }
 
-            Variables.highScoreList.Add(new Highscore() { Score = HighscoreCalculator(highscore, true), Name = Variables.PlayerName, MapSize = $"{LinesCount}x{LinesCount}", Course = CourseName });
-            Variables.highScoreList = Variables.highScoreList.OrderByDescending(x => x.Score).Distinct().ToList();
+            Constants.highScoreList.Add(new Highscore() { Score = HighscoreCalculator(highscore, true), Name = Constants.PlayerName, MapSize = $"{LinesCount}x{LinesCount}", Course = CourseName });
+            Constants.highScoreList = Constants.highScoreList.OrderByDescending(x => x.Score).Distinct().ToList();
 
             // "normal" shouldn't be worth as much as "hard"
             try
             {
                 for (int i = 0; i < 9; i++)
                 {
-                    if (Variables.highScoreList[i].Course == "normal")
+                    if (Constants.highScoreList[i].Course == "normal")
                     {
-                        if (Variables.highScoreList[i].Score > (Variables.highScoreList[Variables.highScoreList.Count - 1].Score * 2))
+                        if (Constants.highScoreList[i].Score > (Constants.highScoreList[Constants.highScoreList.Count - 1].Score * 2))
                         {
-                            Variables.highScoreList.RemoveAt(i);
+                            Constants.highScoreList.RemoveAt(i);
                         }
                     }
                 }
             }
             catch (ArgumentOutOfRangeException) { }
 
-            if (Variables.highScoreList.Count >= 10)
+            if (Constants.highScoreList.Count >= 10)
             {
-                Variables.highScoreList.RemoveAt(Variables.highScoreList.Count - 1);
+                Constants.highScoreList.RemoveAt(Constants.highScoreList.Count - 1);
             }
 
-            string serializedHighscore = JsonSerializer.Serialize(Variables.highScoreList);
-            File.WriteAllText(Variables.highscorePath, serializedHighscore);
+            string serializedHighscore = JsonSerializer.Serialize(Constants.highScoreList);
+            File.WriteAllText(Constants.highscorePath, serializedHighscore);
 
-            if (highscore == Variables.highScoreList[0].Score) { return true; }
+            if (highscore == Constants.highScoreList[0].Score) { return true; }
             return false;
         }
 

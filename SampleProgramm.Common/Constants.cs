@@ -3,21 +3,19 @@ using System.Collections.Generic;
 
 namespace SampleProgram.Common
 {
-    public class Variables
+    public class Constants
     {
-        public Variables()
+        private int _time;
+
+        public Constants()
         {
             Console.CursorVisible = false;
-
-            if ( Difficulty == 1) { time = 18; }
-            else if ( Difficulty == 2) { time = 10; }
-            else { time = 6; }
 
             Highscore = 0;
             Lives = 3;
 
-            enemyLines = new List<string>();
             failSave = 0;
+            enemyLines = new List<string>();
         }
 
         public const string linePath = @"C:\Users\Public\Documents\Lines.json";
@@ -43,8 +41,16 @@ namespace SampleProgram.Common
         public static int currentPosition;
         public static int newPosition;
 
+        public int time
+        {
+            get
+            {
+                if (Difficulty == 1) { return 18; }
+                else if (Difficulty == 2) { return 10; }
+                else { return 6; }
+            }
+        }
         public List<string> enemyLines;
-        public int time;
         public int Lives;
         public int Highscore;
         public int failSave;
