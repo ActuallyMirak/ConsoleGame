@@ -1,313 +1,342 @@
 ﻿using SampleProgram.Common;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Text.Json;
+using System.Threading;
 
-namespace SampleProgram.Additions
+namespace SampleProgram.Additions;
+
+public class Addition
 {
-    public class Addition
+    public static string SetupHighscore()
     {
-        public static void CheckForUser()
+        const string path = @"C:\Users";
+
+        var directory = new DirectoryInfo(path).GetDirectories().Where(x => !x.Name.Contains("User") && !x.Name.Contains("Default") && !x.Name.Contains("Public")).ToList().First();
+
+        var highscorePath = $"{directory.FullName}\\source\\repos\\Sample\\Highscores.json";
+
+        if (!File.Exists(highscorePath))
         {
-            string path = @"C:\Users";
+            highscorePath = "C:\\Users\\Public\\Documents\\Highscores.json";
 
-            var directory = new DirectoryInfo(path).GetDirectories().Where(x => !x.Name.Contains("User") && !x.Name.Contains("Default") && !x.Name.Contains("Public")).ToList().First();
-
-            Constants.highscorePath = $"{directory.FullName}\\source\\repos\\Sample\\Highscores.json";
-
-            if (!File.Exists(Constants.highscorePath))
+            if (!File.Exists(highscorePath))
             {
-                Constants.highscorePath = "C:\\Users\\Public\\Documents\\highscores.json";
-
-                if (!File.Exists(Constants.highscorePath))
-                {
-                    File.WriteAllText(Constants.highscorePath, "[]");
-                }
+                File.WriteAllText(highscorePath, "[]");
             }
         }
-        public static void HallOfFame()
+
+        return highscorePath;
+    }
+
+    public static void HallOfFame(GameState gameState)
+    {
+        var highscores = JsonSerializer.Deserialize<List<Highscore>>(File.ReadAllText(gameState.HighscorePath));
+
+        gameState.HighScoreList = highscores;
+
+        SetPositionAndWrite(50, 10, "/ Hall of Fame \\");
+
+        SetPositionAndWrite(40, 13, "  Score    \tName  \tMapsize    Difficulty");
+        SetPositionAndWrite(40, 14, "=============================================");
+
+        for (int i = 0; i < highscores.Count; i++)
         {
-            List<Highscore> highscores = Constants.highScoreList;
-
-            SetPositionAndWrite(50, 10, "/ Hall of Fame \\");
-
-            SetPositionAndWrite(40, 13, "  Score    \tName  \tMapsize    Difficulty");
-            SetPositionAndWrite(40, 14, "=============================================");
-
-            for (int i = 0; i < highscores.Count; i++)
-            {
-                SetPositionAndWrite(35, i + 15, string.Format("{0,13}\t{1,5}\t  {2}        {3}", highscores[i].Score, highscores[i].Name, highscores[i].MapSize, highscores[i].Course));
-            }
-            Console.ReadKey();
-            Console.Clear();
+            SetPositionAndWrite(35, i + 15, string.Format("{0,13}\t{1,5}\t  {2}        {3}", highscores[i].Score, highscores[i].Name, highscores[i].MapSize, highscores[i].Course));
         }
-        public static void Tutorial()
+        Console.ReadKey();
+        Console.Clear();
+    }
+
+    public static void Tutorial()
+    {
+        SetPositionAndWrite(40, 8, "Tutorial");
+        SetPositionAndWrite(39, 9, "----------");
+        SetPositionAndWrite(30, 11, "          Das bist du:\t\t\t\t\t\t" + GameState.Entities[0]);
+        SetPositionAndWrite(30, 12, "          Das sind Gegner:\t\t\t\t\t" + GameState.Entities[1]);
+        SetPositionAndWrite(30, 13, "          Dieses Item verhindert die nächsten 8 Spawns:\t\t" + GameState.Entities[2]);
+        SetPositionAndWrite(30, 14, "(selten)  Dieses Item gibt dir 5000 Punkte:\t\t\t" + GameState.Entities[3]);
+
+        Console.ReadKey();
+        Console.Clear();
+
+        using var _ = File.Create(GameState.TutorialPath);
+    }
+
+    public static string NameSelection()
+    {
+        Console.Clear();
+        Console.CursorVisible = true;
+
+        SetPositionAndWrite(50, 10, "Please enter your name: ");
+        var playerName = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(playerName))
         {
-            SetPositionAndWrite(40, 8, "Tutorial");
-            SetPositionAndWrite(39, 9, "----------");
-            SetPositionAndWrite(30, 11, "          Das bist du:\t\t\t\t\t\t" + Constants.entities[0]);
-            SetPositionAndWrite(30, 12, "          Das sind Gegner:\t\t\t\t\t" + Constants.entities[1]);
-            SetPositionAndWrite(30, 13, "          Dieses Item verhindert die nächsten 8 Spawns:\t\t" + Constants.entities[2]);
-            SetPositionAndWrite(30, 14, "(selten)  Dieses Item gibt dir 5000 Punkte:\t\t\t" + Constants.entities[3]);
-            Console.ReadKey();
-            Console.Clear();
+            Console.SetCursorPosition(74 + playerName.Length, 10);
+            for (int i = 0; i < playerName.Length; i++)
+            {
+                Console.Write("\b");
+            }
+            for (int i = 0; i < playerName.Length; i++)
+            {
+                Console.Write(" ");
+            }
 
-            FileStream cache = File.Create(Constants.tutorialPath);
+            SetPositionAndWrite(50, 8, "Your name has to contain a symbol\n");
 
-            cache.Close();
-            cache.Dispose();
+            return NameSelection();
         }
-        public static void NameSelection()
+        else if (playerName.Length >= 35)
         {
-            Console.Clear();
-            Console.CursorVisible = true;
-
-            SetPositionAndWrite(50, 10, "Please enter your name: ");
-            Constants.PlayerName = Console.ReadLine();
-
-            if (string.IsNullOrWhiteSpace(Constants.PlayerName))
-            {
-                Console.SetCursorPosition(74 + Constants.PlayerName.Length, 10);
-                for (int i = 0; i < Constants.PlayerName.Length; i++)
-                {
-                    Console.Write("\b");
-                }
-                for (int i = 0; i < Constants.PlayerName.Length; i++)
-                {
-                    Console.Write(" ");
-                }
-
-                SetPositionAndWrite(50, 8, "Your name has to contain a symbol\n");
-                NameSelection();
-            }
-            else if (Constants.PlayerName.Length >= 35)
-            {
-                NameSelection();
-            }
-            else if (Constants.PlayerName.Length > 5)
-            {
-                Console.SetCursorPosition(74 + Constants.PlayerName.Length, 10);
-                for (int i = 0; i < Constants.PlayerName.Length; i++)
-                {
-                    Console.Write("\b");
-                }
-                for (int i = 0; i < Constants.PlayerName.Length; i++)
-                {
-                    Console.Write(" ");
-                }
-
-                SetPositionAndWrite(50, 7, "Your name can only be 5 letters long");
-                NameSelection();
-            }
-            Console.Clear();
+            return NameSelection();
         }
-        public static void DifficultySelection()
+        else if (playerName.Length > 5)
         {
-            SetPositionAndWrite(50, 10, "Please select a difficulty/multipliere");
-            SetPositionAndWrite(50, 11, "(1)easy = points * 0");
-            SetPositionAndWrite(50, 12, "(2)normal = points * 1");
-            SetPositionAndWrite(50, 13, "(3)hard = points * 2");
-            SetPositionAndWrite(50, 14, "Your choice: ");
-
-            while (Constants.Difficulty == 0)
+            Console.SetCursorPosition(74 + playerName.Length, 10);
+            for (int i = 0; i < playerName.Length; i++)
             {
-                Console.SetCursorPosition(63, 14);
-                ConsoleKey cKey = Console.ReadKey().Key;
-
-                switch (cKey)
-                {
-                    case ConsoleKey.D1:
-                    case ConsoleKey.NumPad1:
-
-                        Constants.Difficulty = 1;
-                        break;
-
-                    case ConsoleKey.D2:
-                    case ConsoleKey.NumPad2:
-
-                        Constants.Difficulty = 2;
-                        break;
-
-                    case ConsoleKey.D3:
-                    case ConsoleKey.NumPad3:
-
-                        Constants.Difficulty = 3;
-                        break;
-
-                    default:
-                        Console.Write("\b ");
-
-                        SetPositionAndWrite(35, 14, "Invalid Input");
-                        break;
-                }
+                Console.Write("\b");
             }
-            Console.Clear();
+            for (int i = 0; i < playerName.Length; i++)
+            {
+                Console.Write(" ");
+            }
+
+            SetPositionAndWrite(50, 7, "Your name can only be 5 letters long");
+            
+            return NameSelection();
         }
-        public static void MovementSelection(ConsoleKey cKey, List<string> Lines)
+
+        Console.Clear();
+
+        return playerName;
+    }
+
+    public static void DifficultySelection(GameState gameState)
+    {
+        SetPositionAndWrite(50, 10, "Please select a difficulty/multiplier");
+        SetPositionAndWrite(50, 11, "(1)easy = points * 0");
+        SetPositionAndWrite(50, 12, "(2)normal = points * 1");
+        SetPositionAndWrite(50, 13, "(3)hard = points * 2");
+        SetPositionAndWrite(50, 14, "Your choice: ");
+
+        while (gameState.Difficulty == 0)
         {
+            Console.SetCursorPosition(63, 14);
+            var cKey = Console.ReadKey().Key;
+
             switch (cKey)
             {
-                case ConsoleKey.A:
-                case ConsoleKey.LeftArrow:
-                    int newPosition = Constants.currentPosition - 1;
-                    if (newPosition >= 0 && newPosition < Lines.Count)
-                    {
-                        Constants.newPosition = newPosition;
-                    }
+                case ConsoleKey.D1:
+                case ConsoleKey.NumPad1:
+                    gameState.Difficulty = 1;
                     break;
 
-                case ConsoleKey.D:
-                case ConsoleKey.RightArrow:
-                    newPosition = Constants.currentPosition + 1;
-                    if (newPosition >= 0 && newPosition < Lines.Count)
-                    {
-                        Constants.newPosition = newPosition;
-                    }
+                case ConsoleKey.D2:
+                case ConsoleKey.NumPad2:
+                    gameState.Difficulty = 2;
+                    break;
+
+                case ConsoleKey.D3:
+                case ConsoleKey.NumPad3:
+                    gameState.Difficulty = 3;
                     break;
 
                 default:
-                    throw new WrongInputException();
-            }
-        }
-        public static void PlayerLines(List<string> Lines)
-        {
-            Console.Write("#");
-            foreach (string a in Lines)
-            {
-                Console.Write(a);
-            }
-            Console.Write("#\n");
-        }
-        public static void Wall(int count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                Console.Write("###");
-            }
-            Console.Write("##\n");
-        }
-        public static int HitCalculator(List<string> Lines, int lives, int highscore)
-        {
-            List<string> enemyPosition = new List<string>();
-            int i = 0;
+                    Console.Write("\b ");
 
-            if (Constants.LastEnemyLine.Contains(Constants.entities[0][0]) ||
-                Constants.LastEnemyLine.Contains(Constants.entities[1][0]) ||
-                Constants.LastEnemyLine.Contains(Constants.entities[2][0]) ||
-                Constants.LastEnemyLine.Contains(Constants.entities[3][0]))
-            {
-                try
+                    SetPositionAndWrite(35, 14, "Invalid Input");
+                    break;
+            }
+        }
+        Console.Clear();
+    }
+
+    public static void MovementSelection(GameState gameState, ConsoleKey cKey)
+    {
+        var lines = gameState.PlayerLines.Input;
+
+        switch (cKey)
+        {
+            case ConsoleKey.A:
+            case ConsoleKey.LeftArrow:
+                int newPosition = gameState.CurrentPosition - 1;
+                if (newPosition >= 0 && newPosition < lines.Count)
                 {
-                    foreach (char a in Constants.LastEnemyLine)
-                    {
-                        if (i >= Constants.LastEnemyLine.Length - 1) { break; }
-                        if (a != '#')
-                        {
-                            enemyPosition.Add(Constants.LastEnemyLine.Substring(i, 3));
-                            i += 3;
-                        }
-                        else { i++; }
+                    gameState.NewPosition = newPosition;
+                }
+                break;
+
+            case ConsoleKey.D:
+            case ConsoleKey.RightArrow:
+                newPosition = gameState.CurrentPosition + 1;
+                if (newPosition >= 0 && newPosition < lines.Count)
+                {
+                    gameState.NewPosition = newPosition;
+                }
+                break;
+
+            default:
+                throw new WrongInputException();
+        }
+    }
+
+    public static void PlayerLines(List<string> lines)
+    {
+        Console.Write("#");
+
+        foreach (string a in lines)
+        {
+            Console.Write(a);
+        }
+
+        Console.Write("#\n");
+    }
+
+    public static void Wall(int count)
+    {
+        Console.Write(new string('#', count * 3));
+
+        Console.Write("##\n");
+    }
+
+    public static int HitCalculator(GameState gameState)
+    {
+        var i = 0;
+        var enemyPosition = new List<string>();
+
+        if (gameState.LastEnemyLine.Contains(GameState.Entities[0][0]) ||
+            gameState.LastEnemyLine.Contains(GameState.Entities[1][0]) ||
+            gameState.LastEnemyLine.Contains(GameState.Entities[2][0]) ||
+            gameState.LastEnemyLine.Contains(GameState.Entities[3][0]))
+        {
+            try
+            {
+                foreach (char a in gameState.LastEnemyLine)
+                {
+                    if (i >= gameState.LastEnemyLine.Length - 1) 
+                    { 
+                        break;
                     }
-
-                    for (i = 0; i < Lines.Count; i++)
+                    else if (a != '#')
                     {
-                        if (Lines[i] == Constants.entities[0] && enemyPosition[i] == Constants.entities[1])
-                        {
-                            lives--;
-                            Lives_Blink(lives, Lines.Count);
-
-                            break;
-                        }
-                        else if (Lines[i] == Constants.entities[0] && enemyPosition[i] == Constants.entities[2])
-                        {
-                            Constants.repetitions += 8;
-
-                            break;
-                        }
-                        else if (Lines[i] == Constants.entities[0] && enemyPosition[i] == Constants.entities[3])
-                        {
-                            highscore += 5000;
-
-                            break;
-                        }
+                        enemyPosition.Add(gameState.LastEnemyLine.Substring(i, 3));
+                        i += 3;
+                    }
+                    else 
+                    {
+                        i++;
                     }
                 }
-                catch (Exception) { }
 
-                if (lives == 0) { Constants.loopController = false; }
+                var lines = gameState.PlayerLines.Input;
+
+                for (i = 0; i < lines.Count; i++)
+                {
+                    if (lines[i] == GameState.Entities[0] && enemyPosition[i] == GameState.Entities[1])
+                    {
+                        gameState.Lives--;
+                        LivesBlink(gameState.Lives, lines.Count);
+
+                        break;
+                    }
+                    else if (lines[i] == GameState.Entities[0] && enemyPosition[i] == GameState.Entities[2])
+                    {
+                        gameState.Repetitions += 8;
+
+                        break;
+                    }
+                    else if (lines[i] == GameState.Entities[0] && enemyPosition[i] == GameState.Entities[3])
+                    {
+                        gameState.Highscore += 5000;
+
+                        break;
+                    }
+                }
             }
+            catch (Exception) { }
 
-            return lives;
+            gameState.IsGameLoopActive = gameState.Lives != 0;
         }
-        public static void Lives_Blink(int lives, int LinesCount)
+
+        return gameState.Lives;
+    }
+
+    public static void LivesBlink(int lives, int LinesCount)
+    {
+        const string livesTextTemplate = "Your Lives: {0}";
+
+        for (int i = 0; i < 10; i++)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                SetPositionAndWrite(LinesCount * 3 + 33, LinesCount / 2 + 1, "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b                     ");
+            SetPositionAndWrite(LinesCount * 3 + 33, LinesCount / 2 + 1, new string('\b', livesTextTemplate.Length) + new string(' ', livesTextTemplate.Length));
 
-                Thread.Sleep(50);
+            Thread.Sleep(50);
 
-                SetPositionAndWrite(LinesCount * 3 + 20, LinesCount / 2 + 1, string.Format("Your Lives: {0}", lives));
+            SetPositionAndWrite(LinesCount * 3 + 20, LinesCount / 2 + 1, string.Format(livesTextTemplate, lives));
 
-                Thread.Sleep(50);
-            }
-
-            // Stellt sicher das man sich nicht bewegen kann.
-            while (Console.KeyAvailable)
-            {
-                Console.ReadKey();
-                Console.Write("\b ");
-            }
+            Thread.Sleep(50);
         }
-        public static int HighscoreCalculator(int highscore, bool getHighscore)
-        {
-            if (!getHighscore)
-            {
-                highscore += 23 * (Constants.Difficulty - 1);
-            }
 
-            return highscore;
+        // Ensures no movement happens while lives are blinking
+        while (Console.KeyAvailable)
+        {
+            Console.ReadKey();
+            Console.Write("\b ");
         }
-        public static void RepeatProgram(List<string> Lines, int highscore)
+    }
+
+    public static int HighscoreCalculator(GameState gameState,bool getHighscore)
+    {
+        if (!getHighscore)
         {
-            bool newHighscore = false;
-            if (Constants.Difficulty != 1)
+            gameState.Highscore += 23 * (gameState.Difficulty - 1);
+        }
+
+        return gameState.Highscore;
+    }
+
+    public static void RepeatProgram(ref GameState gameState)
+    {
+        bool newHighscore = false;
+        if (gameState.Difficulty != 1)
+        {
+            newHighscore = SaveHighscore(gameState);
+        }
+
+        Console.Clear();
+
+        SetPositionAndWrite(50, 8, "--------------------------");
+        SetPositionAndWrite(50, 10, "      Game over");
+        SetPositionAndWrite(50, 11, string.Format("   Your Highscore | {0}", HighscoreCalculator(gameState, getHighscore: true)));
+
+        if (newHighscore == true)
+        {
+            SetPositionAndWrite(50, 12, "    ! NEW HIGHSCORE !");
+        }
+
+        SetPositionAndWrite(50, 13, "--------------------------");
+
+        SetPositionAndWrite(50, 14, "Try again?");
+
+        SetPositionAndWrite(50, 15, "Yes (Y) or No (N): ");
+
+        Console.SetCursorPosition(70, 15);
+        string input = Console.ReadLine();
+
+        while (true)
+        {
+            if (input.Equals("Y", StringComparison.InvariantCultureIgnoreCase))
             {
-                newHighscore = SaveHighscore(highscore, Lines.Count);
+                gameState = new GameState(gameState);
+                break;
             }
-
-            Console.Clear();
-
-            SetPositionAndWrite(50, 8, "--------------------------");
-            SetPositionAndWrite(50, 10, "      Game over");
-            SetPositionAndWrite(50, 11, string.Format("   Your Highscore | {0}", HighscoreCalculator(highscore, true)));
-
-            if (newHighscore == true)
+            else if (input.Equals("N", StringComparison.InvariantCultureIgnoreCase))
             {
-                SetPositionAndWrite(50, 12, "    ! NEW HIGHSCORE !");
-            }
-
-            SetPositionAndWrite(50, 13, "--------------------------");
-
-            SetPositionAndWrite(50, 14, "Try again?");
-
-            SetPositionAndWrite(50, 15, "Yes (Y) or No (N): ");
-
-            Console.SetCursorPosition(70, 15);
-            string input = Console.ReadLine();
-
-        Validation:
-            if (input.ToUpper() == "Y")
-            {
-                Constants.loopController = true;
-            }
-            else if (input.ToUpper() == "N")
-            {
-                Constants.loopController = false;
+                gameState.IsGameLoopActive = false;
+                break;
             }
             else
             {
@@ -317,51 +346,53 @@ namespace SampleProgram.Additions
                 Console.WriteLine("Yes (Y) or No (N)");
 
                 input = Console.ReadLine();
-                goto Validation;
             }
         }
-        public static bool SaveHighscore(int highscore, int LinesCount)
+    }
+
+    public static bool SaveHighscore(GameState gameState)
+    {
+        var courseName = gameState.Difficulty == 2 ? "normal" : "hard";
+
+        gameState.HighScoreList.Add(new Highscore() 
         {
-            string CourseName;
+            Score = HighscoreCalculator(gameState, getHighscore: true), 
+            Name = gameState.PlayerName, MapSize = $"{gameState.PlayerLines.Input.Count}x{gameState.PlayerLines.Input.Count}",
+            Course = courseName 
+        });
 
-            if (Constants.Difficulty == 2) { CourseName = "normal"; }
-            else { CourseName = "hard"; }
+        gameState.HighScoreList = gameState.HighScoreList.OrderByDescending(x => x.Score).Distinct().ToList();
 
-            Constants.highScoreList.Add(new Highscore() { Score = HighscoreCalculator(highscore, true), Name = Constants.PlayerName, MapSize = $"{LinesCount}x{LinesCount}", Course = CourseName });
-            Constants.highScoreList = Constants.highScoreList.OrderByDescending(x => x.Score).Distinct().ToList();
-
-            // "normal" shouldn't be worth as much as "hard"
-            try
+        // "normal" shouldn't be worth as much as "hard"
+        try
+        {
+            for (int i = 0; i < 9; i++)
             {
-                for (int i = 0; i < 9; i++)
+                if (gameState.HighScoreList[i].Course == "normal")
                 {
-                    if (Constants.highScoreList[i].Course == "normal")
+                    if (gameState.HighScoreList[i].Score > (gameState.HighScoreList[gameState.HighScoreList.Count - 1].Score * 2))
                     {
-                        if (Constants.highScoreList[i].Score > (Constants.highScoreList[Constants.highScoreList.Count - 1].Score * 2))
-                        {
-                            Constants.highScoreList.RemoveAt(i);
-                        }
+                        gameState.HighScoreList.RemoveAt(i);
                     }
                 }
             }
-            catch (ArgumentOutOfRangeException) { }
-
-            if (Constants.highScoreList.Count >= 10)
-            {
-                Constants.highScoreList.RemoveAt(Constants.highScoreList.Count - 1);
-            }
-
-            string serializedHighscore = JsonSerializer.Serialize(Constants.highScoreList);
-            File.WriteAllText(Constants.highscorePath, serializedHighscore);
-
-            if (highscore == Constants.highScoreList[0].Score) { return true; }
-            return false;
         }
+        catch (ArgumentOutOfRangeException) { }
 
-        public static void SetPositionAndWrite(int x, int y, string output)
+        if (gameState.HighScoreList.Count >= 10)
         {
-            Console.SetCursorPosition(x, y);
-            Console.Write(output);
+            gameState.HighScoreList.RemoveAt(gameState.HighScoreList.Count - 1);
         }
+
+        var serializedHighscore = JsonSerializer.Serialize(gameState.HighScoreList);
+        File.WriteAllText(gameState.HighscorePath, serializedHighscore);
+
+        return gameState.Highscore == gameState.HighScoreList[0].Score;
+    }
+
+    public static void SetPositionAndWrite(int x, int y, string output)
+    {
+        Console.SetCursorPosition(x, y);
+        Console.Write(output);
     }
 }

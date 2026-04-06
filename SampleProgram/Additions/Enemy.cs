@@ -1,92 +1,83 @@
 ﻿using SampleProgram.Common;
 
 using System;
-using System.Collections.Generic;
 
-namespace SampleProgram.Additions
+namespace SampleProgram.Additions;
+
+class Enemy
 {
-    class Enemy
+    public static void EnemyLines(GameState gameState, bool initial)
     {
-        public static void EnemyLines(List<string> enemyLines, int linesCount, bool initial)
+        var linesCount = gameState.EnemyLinesCount;
+
+        if (initial)
         {
-            if (initial)
+            for (int i = 0; i < linesCount; i++)
             {
-                for (int i = 0; i < linesCount; i++)
-                {
-                    string line = "#";
-
-                    for (int a = 0; a < linesCount; a++)
-                    {
-                        line += "   ";
-                    }
-                    line += "#";
-
-                    enemyLines.Add(line);
-                }
-
-                foreach (string line in enemyLines)
-                {
-                    Console.WriteLine(line);
-                }
+                gameState.EnemyLines.Add($"#{new string(' ', linesCount * 3)}#");
             }
-            else
+
+            foreach (string line in gameState.EnemyLines)
             {
-                enemyLines.RemoveAt(enemyLines.Count - 1);
-
-                try
-                {
-                    Constants.LastEnemyLine = enemyLines[enemyLines.Count - 1];
-                }
-                catch { }
-
-                string line = "#";
-                for (int a = 0; a < linesCount; a++)
-                {
-                    line += Spawn();
-                }
-                enemyLines.Insert(0, line + "#");
-
-                for (int i = 0; i < enemyLines.Count; i++)
-                {
-                    int correctLine = i + 1;
-                    Console.SetCursorPosition(0, correctLine);
-                    Console.WriteLine(enemyLines[i]);
-                }
+                Console.WriteLine(line);
             }
         }
-        public static string Spawn()
+        else
         {
-            if (Constants.repetitions > 0)
+            gameState.EnemyLines.RemoveAt(gameState.EnemyLines.Count - 1);
+
+            try
             {
-                Constants.repetitions--;
-                return Constants.emptyString;
+                gameState.LastEnemyLine = gameState.EnemyLines[gameState.EnemyLines.Count - 1];
+            }
+            catch { }
+
+            var line = "#";
+            for (int a = 0; a < linesCount; a++)
+            {
+                line += Spawn(gameState);
             }
 
-            Random random = new Random();
-            int number;
+            gameState.EnemyLines.Insert(0, line + "#");
 
-            number = random.Next(0, 200);
-            if (number == 1)
+            for (int i = 0; i < gameState.EnemyLines.Count; i++)
             {
-                return Constants.entities[2];
+                int correctLine = i + 1;
+                Console.SetCursorPosition(0, correctLine);
+                Console.WriteLine(gameState.EnemyLines[i]);
             }
+        }
+    }
 
-            number = random.Next(0, 10000);
-            if (number == 1)
-            {
-                return Constants.entities[3];
-            }
+    public static string Spawn(GameState gameState)
+    {
+        if (gameState.Repetitions > 0)
+        {
+            gameState.Repetitions--;
+            return GameState.EmptyString;
+        }
 
-            number = random.Next(0, 20);
+        var number = Random.Shared.Next(0, 200);
+        if (number == 1)
+        {
+            return GameState.Entities[2];
+        }
 
-            if (number > 16)
-            {
-                return Constants.entities[1];
-            }
-            else
-            {
-                return Constants.emptyString;
-            }
+        number = Random.Shared.Next(0, 10000);
+        if (number == 1)
+        {
+            return GameState.Entities[3];
+        }
+
+        number = Random.Shared.Next(0, 20);
+
+        if (number > 16)
+        {
+            return GameState.Entities[1];
+        }
+        else
+        {
+            return GameState.EmptyString;
         }
     }
 }

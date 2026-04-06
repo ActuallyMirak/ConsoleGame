@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace SampleProgram.Common
+namespace SampleProgram.Common;
+
+public class LineClass
 {
-    public class LineClass
-    {
-        public List<string> Input { get; set; }
-    }
+    public List<string> Input { get; set; }
 }

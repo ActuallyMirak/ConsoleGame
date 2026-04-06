@@ -1,15 +1,12 @@
-﻿// using
+﻿namespace SampleProgram.Common;
 
-namespace SampleProgram.Common
+public class Highscore
 {
-    public class Highscore
-    {
-        public int Score { get; set; }
+    public int Score { get; set; }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public string MapSize { get; set; }
+    public string MapSize { get; set; }
 
-        public string Course { get; set; }
-    }
+    public string Course { get; set; }
 }

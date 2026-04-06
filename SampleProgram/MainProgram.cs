@@ -1,111 +1,118 @@
-﻿using System;
-
-using SampleProgram.Additions;
+﻿using SampleProgram.Additions;
 using SampleProgram.Common;
-
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
 
-namespace SampleProgram
+namespace SampleProgram;
+
+class MainProgram
 {
-    class MainProgram
+    static void Main()
     {
-        public static void SettingUpPlayerLines()
+        Program.Start();
+
+        var playerName = Addition.NameSelection();
+        var highscorePath = Addition.SetupHighscore();
+
+        var gameState = new GameState(playerName, highscorePath);
+
+        Addition.HallOfFame(gameState);
+
+        Addition.DifficultySelection(gameState);
+
+        do
         {
-            if (!File.Exists(Constants.linePath))
-            {
+            SettingUpPlayerLines(gameState);
 
-                for (int i = 0; i < 9; i++)
+            Program.BuildGame(gameState, shouldPrintWall: true);
+
+            var x = gameState.PlayerLines.Input.Count * 3 + 20;
+            var y = gameState.PlayerLines.Input.Count / 2;
+
+            while (gameState.IsGameLoopActive)
+            {
+                var cKey = ConsoleKey.Enter;
+
+                Program.BuildGame(gameState, shouldPrintWall: false);
+
+                Addition.SetPositionAndWrite(x, y, $"Your Points: {Addition.HighscoreCalculator(gameState, getHighscore: true)}");
+
+                Addition.SetPositionAndWrite(x, y + 1, $"Your Lives: {gameState.Lives}");
+
+                Console.SetCursorPosition(gameState.PlayerLines.Input.Count * 3 + 10, gameState.PlayerLines.Input.Count / 2);
+                for (int i = gameState.Time; i > 0; i--)
                 {
-                    if (i == 4)
+                    Thread.Sleep(15);
+                    if (Console.KeyAvailable)
                     {
-                        Constants.playerLines.Input.Add(Constants.entities[0]);
-                    }
-                    else
-                    {
-                        Constants.playerLines.Input.Add("   ");
+                        cKey = Console.ReadKey().Key;
+                        Console.Write("\b ");
+                        break;
                     }
                 }
-            }
-            else
-            {
-                Constants.playerLines = JsonSerializer.Deserialize<LineClass>(File.ReadAllText(Constants.linePath));
-            }
-            if (Constants.playerLines.Input.Count <= 2) { Console.WriteLine("To small Game"); Console.ReadKey(); }
 
-            for (int i = 0; i < Constants.playerLines.Input.Count; i++)
-            {
-                if (Constants.playerLines.Input[i] == Constants.entities[0])
+                gameState.Highscore = Addition.HighscoreCalculator(gameState, getHighscore: false);
+
+                try
                 {
-                    Constants.currentPosition = i;
+                    Addition.MovementSelection(gameState, cKey);
+
+                    gameState.PlayerLines.Input[gameState.CurrentPosition] = "   ";
+                    gameState.PlayerLines.Input[gameState.NewPosition] = GameState.Entities[0];
+
+                    gameState.CurrentPosition = gameState.NewPosition;
+                }
+                catch (WrongInputException) { }
+
+                gameState.Lives = Addition.HitCalculator(gameState);
+            }
+            Console.CursorVisible = true;
+
+            Addition.RepeatProgram(ref gameState);
+
+            Console.Clear();
+        }
+        while (gameState.IsGameLoopActive);
+    }
+
+    private static void SettingUpPlayerLines(GameState gameState)
+    {
+        if (!File.Exists(GameState.LinePath))
+        {
+
+            for (int i = 0; i < 9; i++)
+            {
+                if (i == 4)
+                {
+                    gameState.PlayerLines.Input.Add(GameState.Entities[0]);
+                }
+                else
+                {
+                    gameState.PlayerLines.Input.Add("   ");
                 }
             }
-            Constants.enemyLinesCount = Constants.playerLines.Input.Count;
+        }
+        else
+        {
+            gameState.PlayerLines = JsonSerializer.Deserialize<LineClass>(File.ReadAllText(GameState.LinePath));
         }
 
-        static void Main()
+        if (gameState.PlayerLines.Input.Count <= 2)
         {
-            Program.Start();
-
-            Addition.NameSelection();
-            Addition.DifficultySelection();
-
-            SettingUpPlayerLines();
-
-            do
-            {
-                Constants variables = new Constants();
-
-                Program.BuildGame(variables.enemyLines, true);
-
-                int x = Constants.playerLines.Input.Count * 3 + 20;
-                int y = Constants.playerLines.Input.Count / 2;
-
-                while (Constants.loopController)
-                {
-                    ConsoleKey cKey = ConsoleKey.Enter;
-
-                    Program.BuildGame(variables.enemyLines, false);
-
-                    Addition.SetPositionAndWrite(x, y, $"Your Points: {Addition.HighscoreCalculator(variables.Highscore, true)}");
-
-                    Addition.SetPositionAndWrite(x, y + 1, $"Your Lives: {variables.Lives}");
-
-                    Console.SetCursorPosition(Constants.playerLines.Input.Count * 3 + 10, Constants.playerLines.Input.Count / 2);
-                    for (int i = variables.time; i > 0; i--)
-                    {
-                        Thread.Sleep(15);
-                        if (Console.KeyAvailable)
-                        {
-                            cKey = Console.ReadKey().Key;
-                            Console.Write("\b ");
-                            break;
-                        }
-                    }
-
-                    variables.Highscore = Addition.HighscoreCalculator(variables.Highscore, false);
-
-                    try
-                    {
-                        Addition.MovementSelection(cKey, Constants.playerLines.Input);
-
-                        Constants.playerLines.Input[Constants.currentPosition] = "   ";
-                        Constants.playerLines.Input[Constants.newPosition] = Constants.entities[0];
-
-                        Constants.currentPosition = Constants.newPosition;
-                    }
-                    catch (WrongInputException) { }
-
-                    variables.Lives = Addition.HitCalculator(Constants.playerLines.Input, variables.Lives, variables.Highscore);
-                }
-                Console.CursorVisible = true;
-
-                Addition.RepeatProgram(Constants.playerLines.Input, variables.Highscore);
-
-                Console.Clear();
-            }
-            while (Constants.loopController);
+            Console.WriteLine("To small Game");
+            Console.ReadKey();
         }
+
+        for (int i = 0; i < gameState.PlayerLines.Input.Count; i++)
+        {
+            if (gameState.PlayerLines.Input[i] == GameState.Entities[0])
+            {
+                gameState.CurrentPosition = i;
+            }
+        }
+
+        gameState.EnemyLinesCount = gameState.PlayerLines.Input.Count;
     }
 }
